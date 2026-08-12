@@ -3,62 +3,445 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Numeos</title>
+<title>Numeos — Mental math, trick by trick</title>
+<meta name="description" content="A feed of mental-math puzzles you can swipe like a timeline. Tap a card and it gives you the answer — and then the shortcut that gets you there without a pen.">
+
+<meta property="og:title" content="Numeos — Mental math, trick by trick">
+<meta property="og:description" content="A swipeable feed of mental-math puzzles for iPhone. Every card names the shortcut behind the answer.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://alexanderhaire.github.io/numeos/">
+<meta property="og:image" content="https://alexanderhaire.github.io/numeos/media/numeos-poster.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
 <style>
-  :root { color-scheme: light dark; }
-  body {
-    max-width: 42rem;
-    margin: 0 auto;
-    padding: 2.5rem 1.25rem 6rem;
-    font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: #1a1a1a;
-    background: #f2f0e9;
+/* ---------------------------------------------------------------------------
+   The app's own palette, lifted from src/styles.css rather than re-picked, so
+   the page and the product are the same object. The hard 5px offset shadow is
+   the app's --pop; it is what makes a Numeos card look pressed rather than
+   floated, and it is the one visual idea worth carrying to the web.
+   --------------------------------------------------------------------------- */
+:root {
+  --paper: #efebe1;
+  --paper-deep: #e6e1d4;
+  --ink: #16150f;
+  --teal: #96bfbe;
+  --teal-deep: #7aa9a8;
+  --coral: #f1907b;
+  --muted: #65604f;
+  --card: #fff;
+  --rule: #d8d2c2;
+
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --radius: 22px;
+  --pop: 0 5px 0 0 var(--ink);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #14140f;
+    --paper-deep: #1c1b15;
+    --ink: #f2eee3;
+    --muted: #a09a88;
+    --card: #232219;
+    --rule: #33312a;
+    --pop: 0 5px 0 0 #000;
   }
-  @media (prefers-color-scheme: dark) {
-    body { color: #ececec; background: #16171a; }
-    code { background: #26282c; }
-    th, td { border-color: #34363b; }
-  }
-  h1 { font-size: 2rem; line-height: 1.15; margin: 0 0 .25rem; }
-  h2 { font-size: 1.2rem; margin: 2.25rem 0 .6rem; }
-  .sub { opacity: .65; margin: 0 0 2rem; }
-  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .95rem; }
-  th, td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid #d9d5c9; vertical-align: top; }
-  th { font-weight: 600; }
-  code { background: #e5e1d6; padding: .1em .35em; border-radius: 3px; font-size: .9em; }
-  ul { padding-left: 1.2rem; }
-  li { margin: .35rem 0; }
-  footer { margin-top: 3rem; font-size: .9rem; opacity: .65; }
+}
+:root[data-theme="dark"] {
+  --paper: #14140f; --paper-deep: #1c1b15; --ink: #f2eee3;
+  --muted: #a09a88; --card: #232219; --rule: #33312a; --pop: 0 5px 0 0 #000;
+}
+:root[data-theme="light"] {
+  --paper: #efebe1; --paper-deep: #e6e1d4; --ink: #16150f;
+  --muted: #65604f; --card: #fff; --rule: #d8d2c2; --pop: 0 5px 0 0 var(--ink);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 62rem; margin: 0 auto; padding: 0 1.5rem; }
+
+/* --------------------------------------------------------------- masthead */
+
+header.top {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding: 1.4rem 0;
+}
+.wordmark {
+  display: flex; align-items: center; gap: .6rem;
+  font-family: var(--serif); font-size: 1.4rem; font-weight: 600;
+  letter-spacing: -.01em; text-decoration: none; color: var(--ink);
+}
+.mark {
+  width: 30px; height: 30px; border-radius: 9px;
+  background: var(--teal); border: 2px solid var(--ink);
+  display: grid; place-items: center;
+  font-family: var(--serif); font-size: 17px; color: var(--ink);
+}
+header.top nav { display: flex; gap: 1.4rem; font-size: .95rem; }
+header.top nav a { color: var(--muted); text-decoration: none; }
+header.top nav a:hover { color: var(--ink); }
+@media (max-width: 33rem) { header.top nav { display: none; } }
+
+/* ------------------------------------------------------------------- hero */
+
+.hero {
+  display: grid; grid-template-columns: 1fr 20rem; gap: 3.5rem;
+  align-items: center; padding: 3rem 0 4.5rem;
+}
+@media (max-width: 54rem) {
+  .hero { grid-template-columns: 1fr; gap: 2.5rem; padding: 1.5rem 0 3rem; text-align: center; }
+}
+
+.eyebrow {
+  display: inline-block; font-size: .8rem; font-weight: 600;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--muted);
+  margin: 0 0 1rem;
+}
+h1 {
+  font-family: var(--serif); font-weight: 600;
+  font-size: clamp(2.4rem, 6vw, 3.9rem); line-height: 1.04;
+  letter-spacing: -.02em; margin: 0 0 1.1rem;
+}
+h1 em { font-style: italic; color: var(--teal-deep); }
+@media (prefers-color-scheme: dark) { h1 em { color: var(--teal); } }
+
+.lede { font-size: 1.18rem; color: var(--muted); margin: 0 0 2rem; max-width: 32rem; }
+@media (max-width: 54rem) { .lede { margin-left: auto; margin-right: auto; } }
+
+.cta { display: flex; gap: .9rem; align-items: center; flex-wrap: wrap; }
+@media (max-width: 54rem) { .cta { justify-content: center; } }
+
+.badge {
+  display: inline-flex; align-items: center; gap: .55rem;
+  background: var(--ink); color: var(--paper);
+  border: 2px solid var(--ink); border-radius: 14px;
+  padding: .7rem 1.15rem; font-size: .95rem; font-weight: 600;
+  text-decoration: none; box-shadow: var(--pop);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.badge:hover { transform: translateY(2px); box-shadow: 0 3px 0 0 var(--ink); }
+.badge.soon { background: transparent; color: var(--ink); box-shadow: none; cursor: default; }
+.badge.soon:hover { transform: none; }
+
+/* ------------------------------------------------------------------ phone */
+
+.phone {
+  position: relative; width: 100%; max-width: 20rem; margin: 0 auto;
+  border: 3px solid var(--ink); border-radius: 40px; padding: 8px;
+  background: var(--ink); box-shadow: var(--pop);
+}
+.phone video, .phone img {
+  display: block; width: 100%; border-radius: 30px; background: var(--paper);
+}
+.phone::after {
+  content: ''; position: absolute; top: 17px; left: 50%; transform: translateX(-50%);
+  width: 30%; height: 20px; background: var(--ink); border-radius: 12px;
+}
+
+/* --------------------------------------------------------------- sections */
+
+section { padding: 4rem 0; border-top: 1px solid var(--rule); }
+h2 {
+  font-family: var(--serif); font-weight: 600;
+  font-size: clamp(1.7rem, 3.6vw, 2.4rem); line-height: 1.15;
+  letter-spacing: -.015em; margin: 0 0 .8rem;
+}
+.section-lede { color: var(--muted); max-width: 38rem; margin: 0 0 2.4rem; font-size: 1.05rem; }
+
+/* the worked-card demonstration */
+
+.trick { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: center; }
+@media (max-width: 46rem) { .trick { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--card); border: 2px solid var(--ink); border-radius: var(--radius);
+  padding: 1.6rem 1.5rem; box-shadow: var(--pop);
+}
+.card .q {
+  font-family: var(--serif); font-size: 2rem; letter-spacing: -.01em; margin: 0 0 1rem;
+}
+.card .a { font-family: var(--serif); font-size: 2rem; color: var(--teal-deep); margin: 0 0 1.2rem; }
+@media (prefers-color-scheme: dark) { .card .a { color: var(--teal); } }
+.tag {
+  display: inline-block; background: var(--teal); color: #16150f;
+  border: 2px solid var(--ink); border-radius: 999px;
+  padding: .25rem .8rem; font-size: .82rem; font-weight: 600; margin-bottom: 1rem;
+}
+.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.steps li {
+  counter-increment: s; position: relative; padding-left: 2rem;
+  margin: .55rem 0; color: var(--muted); font-size: .96rem;
+}
+.steps li::before {
+  content: counter(s); position: absolute; left: 0; top: .05rem;
+  width: 1.4rem; height: 1.4rem; border-radius: 50%;
+  border: 1.5px solid var(--rule); display: grid; place-items: center;
+  font-size: .72rem; font-weight: 600; color: var(--muted);
+}
+
+/* feature grid */
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.2rem; }
+.tile {
+  background: var(--paper-deep); border: 2px solid var(--ink);
+  border-radius: var(--radius); padding: 1.4rem 1.4rem 1.5rem;
+}
+.tile h3 { font-family: var(--serif); font-size: 1.15rem; margin: 0 0 .45rem; font-weight: 600; }
+.tile p { margin: 0; color: var(--muted); font-size: .96rem; }
+.tile .num {
+  font-family: var(--serif); font-size: 2.1rem; line-height: 1;
+  color: var(--teal-deep); margin: 0 0 .5rem;
+}
+@media (prefers-color-scheme: dark) { .tile .num { color: var(--teal); } }
+
+/* screenshot rail */
+
+.rail {
+  display: flex; gap: 1rem; overflow-x: auto; padding: .5rem .25rem 1.5rem;
+  scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+}
+.rail img {
+  flex: 0 0 auto; width: 15rem; border-radius: 22px;
+  border: 2px solid var(--ink); box-shadow: var(--pop); scroll-snap-align: center;
+}
+
+/* topics */
+
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.chip {
+  border: 1.5px solid var(--rule); border-radius: 999px;
+  padding: .35rem .85rem; font-size: .92rem; color: var(--muted);
+}
+
+/* league callout */
+
+.league {
+  background: var(--ink); color: var(--paper);
+  border-radius: var(--radius); padding: 2.5rem 2rem; text-align: center;
+}
+.league h2 { color: var(--paper); margin-bottom: .6rem; }
+.league p { color: rgba(239, 235, 225, .72); max-width: 34rem; margin: 0 auto; }
+.league .when {
+  display: inline-block; margin-top: 1.4rem; border: 2px solid var(--teal);
+  color: var(--teal); border-radius: 999px; padding: .5rem 1.2rem;
+  font-weight: 600; font-size: .95rem;
+}
+
+/* privacy line */
+
+.plain {
+  font-family: var(--serif); font-size: clamp(1.4rem, 3vw, 2rem);
+  line-height: 1.35; text-align: center; margin: 0 auto; max-width: 30rem;
+}
+
+/* footer */
+
+footer { border-top: 1px solid var(--rule); padding: 2.5rem 0 3.5rem; font-size: .93rem; }
+.foot-row { display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+footer a { color: var(--muted); text-decoration: none; margin-right: 1.3rem; }
+footer a:hover { color: var(--ink); text-decoration: underline; }
+.fine { color: var(--muted); margin: 1.5rem 0 0; }
 </style>
 </head>
 <body>
 
-<h1>Numeos</h1>
-<p class="sub">A swipeable feed of mental-arithmetic puzzles, for iPhone.</p>
+<div class="wrap">
 
-<p>
-  Numeos deals an endless feed of mental-arithmetic problems, one card at a
-  time. Tap a card to see the answer and the named trick behind it; every tenth
-  card is a short test drawn from the nine you have just read. It works
-  completely without an account. Signing in with Apple is optional and adds two
-  things: a global leaderboard, and private groups of up to thirty people
-  playing a ten-week league on Tuesday evenings.
-</p>
+<header class="top">
+  <a class="wordmark" href="/numeos/">
+    <span class="mark" aria-hidden="true">Σ</span>
+    Numeos
+  </a>
+  <nav>
+    <a href="#how">How it works</a>
+    <a href="#groups">Groups</a>
+    <a href="support.html">Support</a>
+    <a href="privacy.html">Privacy</a>
+  </nav>
+</header>
 
-<h2>Documents</h2>
-<ul>
-  <li><a href="privacy.html">Privacy policy</a> — what is stored, who can see
-      it, and how to delete it.</li>
-  <li><a href="support.html">Support</a> — how to get help, how to report a
-      name or a group, and how to block someone.</li>
-</ul>
+<!-- ------------------------------------------------------------------ hero -->
 
-<h2>Contact</h2>
-<p>
-  <a href="mailto:awhaire@gmail.com">awhaire@gmail.com</a>
-</p>
+<div class="hero">
+  <div>
+    <p class="eyebrow">For iPhone</p>
+    <h1>Mental math,<br><em>trick by trick.</em></h1>
+    <p class="lede">
+      A feed of mental-math puzzles you can swipe like a timeline. Tap a card and
+      it gives you the answer — and then the shortcut that gets you there
+      without a pen.
+    </p>
+    <div class="cta">
+      <span class="badge soon">Coming to the App Store</span>
+    </div>
+  </div>
 
-<footer>Numeos · com.alexanderhaire.numo</footer>
+  <div class="phone">
+    <video
+      src="media/numeos-demo.mp4"
+      poster="media/numeos-poster.jpg"
+      autoplay muted loop playsinline
+      aria-label="Numeos running on an iPhone: a card turns over to show the answer and the shortcut behind it, the feed scrolls, a quick test is answered, and the streak and leaderboard open.">
+    </video>
+  </div>
+</div>
+
+<!-- ------------------------------------------------------------------- how -->
+
+<section id="how">
+  <h2>The trick, not just the answer</h2>
+  <p class="section-lede">
+    An answer on its own teaches you nothing. Every card names the shortcut
+    behind it, then opens onto the worked steps one at a time — plus a short
+    explanation of why the shortcut is allowed at all.
+  </p>
+
+  <div class="trick">
+    <div class="card">
+      <p class="q">48 × 25</p>
+      <p class="a">1,200</p>
+      <span class="tag">Quarter of a hundred</span>
+      <ol class="steps">
+        <li>25 is 100 ÷ 4, so multiply by 100 and take a quarter.</li>
+        <li>48 × 100 = 4,800.</li>
+        <li>4,800 ÷ 4 = 1,200.</li>
+      </ol>
+    </div>
+    <div>
+      <p style="margin-top:0">
+        Break the tens. Anchor at 50. Build it from 10%. Pay the complement.
+        Take the gap out first. Numeos names each one as it uses it, so the
+        method is what you keep — not the particular numbers.
+      </p>
+      <p style="color:var(--muted)">
+        Nine cards, then a quick three-option test on one of the nine you have
+        just read. Being asked about something you have just seen is the point:
+        a fresh question would only measure what you already knew. The wrong
+        options are near-misses built by nudging the real answer, so there is
+        not much in guessing.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- -------------------------------------------------------------- features -->
+
+<section>
+  <h2>Built on your phone, not fetched</h2>
+  <p class="section-lede">
+    Numeos has no list of questions to run out of. Every card is generated at the
+    moment you reach it, which is also why none of it needs a network.
+  </p>
+
+  <div class="grid">
+    <div class="tile">
+      <p class="num">58</p>
+      <h3>Problem types</h3>
+      <p>Across ten topics, generated fresh. Scroll back and the cards are where you left them; tomorrow brings a new set.</p>
+    </div>
+    <div class="tile">
+      <p class="num">✈</p>
+      <h3>Works on a plane</h3>
+      <p>The feed, Practice, your saved cards, your streak and your numbers all run on the device with no network at all.</p>
+    </div>
+    <div class="tile">
+      <p class="num">10→50</p>
+      <h3>Points and tiers</h3>
+      <p>A test pays 10 points at Gentle, up to 50 at Expert, and answering quickly earns up to that much again. Bronze to Diamond.</p>
+    </div>
+    <div class="tile">
+      <p class="num">0</p>
+      <h3>Accounts required</h3>
+      <p>No sign-up wall, no email to confirm, nothing to skip past on first launch. Never sign in and nothing ever leaves the phone.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ----------------------------------------------------------- screenshots -->
+
+<section>
+  <h2>A look at it</h2>
+  <p class="section-lede">Captured from the app running on an iPhone. Nothing here is a mockup.</p>
+  <div class="rail">
+    <img src="media/01-question.png" alt="A card asking a multiplication question." loading="lazy" width="660" height="1434">
+    <img src="media/02-answer.png" alt="The same card turned over, showing the answer and the named shortcut." loading="lazy" width="660" height="1434">
+    <img src="media/03-how-it-works.png" alt="The worked solution, one step at a time." loading="lazy" width="660" height="1434">
+    <img src="media/04-quick-test.png" alt="A quick test with three options." loading="lazy" width="660" height="1434">
+    <img src="media/05-your-numbers.png" alt="Streak, daily goal and a seven-day chart." loading="lazy" width="660" height="1434">
+    <img src="media/06-leaderboard.png" alt="Points and tier on the leaderboard." loading="lazy" width="660" height="1434">
+  </div>
+</section>
+
+<!-- ---------------------------------------------------------------- groups -->
+
+<section id="groups">
+  <div class="league">
+    <h2>And, if you want company</h2>
+    <p>
+      Groups: up to thirty people behind a six-character code, playing a ten-week
+      season. Ten questions served one at a time, with the table moving while you
+      watch. Entirely optional — the rest of the app never asks about it.
+    </p>
+    <span class="when">Live at 8pm Tuesdays, in your group's time zone</span>
+  </div>
+</section>
+
+<!-- ---------------------------------------------------------------- topics -->
+
+<section>
+  <h2>Ten topics</h2>
+  <p class="section-lede">Follow all ten, or narrow it to the one you want to get good at.</p>
+  <div class="chips">
+    <span class="chip">Multiplying</span>
+    <span class="chip">Squares</span>
+    <span class="chip">Percents</span>
+    <span class="chip">Fractions</span>
+    <span class="chip">Sequences</span>
+    <span class="chip">Algebra</span>
+    <span class="chip">Probability</span>
+    <span class="chip">Estimation</span>
+    <span class="chip">Word problems</span>
+    <span class="chip">Quant</span>
+  </div>
+</section>
+
+<!-- --------------------------------------------------------------- privacy -->
+
+<section>
+  <p class="plain">
+    No adverts. No analytics.<br>No tracking. No account required.
+  </p>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-row">
+      <div>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="support.html">Support</a>
+        <a href="mailto:awhaire@gmail.com">awhaire@gmail.com</a>
+      </div>
+      <div style="color:var(--muted)">Numeos · com.alexanderhaire.numo</div>
+    </div>
+    <p class="fine">
+      Made for iPhone. Requires iOS 15 or later. Sign in with Apple is optional
+      and is the only sign-in method offered.
+    </p>
+  </div>
+</footer>
 
 </body>
 </html>
