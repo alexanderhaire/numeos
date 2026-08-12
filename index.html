@@ -136,17 +136,17 @@ h1 em { font-style: italic; color: var(--teal-deep); }
 
 /* ------------------------------------------------------------------ phone */
 
+/* No drawn notch. The recording is a capture of a real device, so it already
+   carries the status bar and the Dynamic Island; a CSS one would be a second
+   set of chrome sitting on top of the real set. */
 .phone {
   position: relative; width: 100%; max-width: 20rem; margin: 0 auto;
   border: 3px solid var(--ink); border-radius: 40px; padding: 8px;
   background: var(--ink); box-shadow: var(--pop);
 }
 .phone video, .phone img {
-  display: block; width: 100%; border-radius: 30px; background: var(--paper);
-}
-.phone::after {
-  content: ''; position: absolute; top: 17px; left: 50%; transform: translateX(-50%);
-  width: 30%; height: 20px; background: var(--ink); border-radius: 12px;
+  display: block; width: 100%; height: auto;
+  border-radius: 30px; background: var(--paper);
 }
 
 /* --------------------------------------------------------------- sections */
@@ -211,8 +211,14 @@ h2 {
   display: flex; gap: 1rem; overflow-x: auto; padding: .5rem .25rem 1.5rem;
   scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
 }
+/* `height: auto` is load-bearing, not tidiness. Each img carries width and
+   height attributes so the browser can reserve the right box before the file
+   arrives and the page does not jump as they load — but an unqualified width in
+   CSS overrides only the width, leaving the attribute's 1434px height in force.
+   The result is a 240 × 1434 screenshot: every one of them stretched to six
+   times its proper height, which is what shipped in the first deploy. */
 .rail img {
-  flex: 0 0 auto; width: 15rem; border-radius: 22px;
+  flex: 0 0 auto; width: 15rem; height: auto; border-radius: 22px;
   border: 2px solid var(--ink); box-shadow: var(--pop); scroll-snap-align: center;
 }
 
