@@ -9,9 +9,14 @@
 <meta property="og:title" content="Numeos: Mental math, trick by trick">
 <meta property="og:description" content="A swipeable feed of mental-math puzzles for iPhone. Every card names the shortcut behind the answer.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://alexanderhaire.github.io/numeos/">
-<meta property="og:image" content="https://alexanderhaire.github.io/numeos/media/numeos-poster.jpg">
+<meta property="og:url" content="https://numeos.io/">
+<meta property="og:image" content="https://numeos.io/media/numeos-og.jpg">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://numeos.io/">
+<link rel="icon" href="media/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="media/apple-touch-icon.png">
+<meta name="theme-color" content="#efebe1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14140f" media="(prefers-color-scheme: dark)">
 
 <style>
 /* ---------------------------------------------------------------------------
@@ -259,13 +264,66 @@ footer a { color: var(--muted); text-decoration: none; margin-right: 1.3rem; }
 footer a:hover { color: var(--ink); text-decoration: underline; }
 .fine { color: var(--muted); margin: 1.5rem 0 0; }
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://numeos.io/#organization",
+      "name": "BERRYTREE LLC",
+      "url": "https://numeos.io/",
+      "brand": { "@type": "Brand", "name": "Numeos" },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "email": "awhaire@gmail.com",
+        "url": "https://numeos.io/support.html"
+      }
+    },
+    {
+      "@type": "MobileApplication",
+      "@id": "https://numeos.io/#app",
+      "name": "Numeos",
+      "url": "https://numeos.io/",
+      "operatingSystem": "iOS 15.0 or later",
+      "applicationCategory": "EducationalApplication",
+      "description": "A feed of mental-math puzzles you can swipe like a timeline. Every card gives the answer, the named shortcut behind it, the worked steps, and why the shortcut is allowed. Runs entirely on the phone: no account, no adverts, no analytics, no tracking.",
+      "publisher": { "@id": "https://numeos.io/#organization" },
+      "featureList": "Daily generated puzzle feed across ten topics, worked steps and named shortcuts for every card, practice by topic, streaks and a leaderboard, private groups with live match nights, an optional on-device AI tutor, full offline operation",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Numeos",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "The app is free. Every puzzle, the feed, practice, streaks, leaderboards and groups are included."
+        },
+        {
+          "@type": "Offer",
+          "name": "AI tutor",
+          "price": "1.99",
+          "priceCurrency": "USD",
+          "description": "Optional monthly subscription. An AI tutor that walks through any puzzle's steps, running on the phone with Apple Intelligence, so nothing you ask leaves it."
+        }
+      ],
+      "screenshot": [
+        "https://numeos.io/media/01-question.png",
+        "https://numeos.io/media/02-answer.png",
+        "https://numeos.io/media/04-ask-ai.png",
+        "https://numeos.io/media/07-leaderboard.png"
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
 <div class="wrap">
 
 <header class="top">
-  <a class="wordmark" href="/numeos/">
+  <a class="wordmark" href="./">
     <span class="mark" aria-hidden="true">Σ</span>
     Numeos
   </a>
