@@ -1,4 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect x="3" y="3" width="58" height="58" rx="16" fill="#96bfbe" stroke="#16150f" stroke-width="4"/>
-  <text x="32" y="45" text-anchor="middle" font-family="Iowan Old Style, Palatino, Georgia, serif" font-size="38" fill="#16150f">&#931;</text>
+  <circle cx="32" cy="32" r="27" fill="#96bfbe" stroke="#16150f" stroke-width="5"/>
+  <text x="32" y="32" text-anchor="middle" dominant-baseline="central" font-family="Georgia, 'Times New Roman', serif" font-size="22" fill="#16150f">6&#215;7</text>
 </svg>
