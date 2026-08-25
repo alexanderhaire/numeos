@@ -263,6 +263,89 @@ footer { border-top: 1px solid var(--rule); padding: 2.5rem 0 3.5rem; font-size:
 footer a { color: var(--muted); text-decoration: none; margin-right: 1.3rem; }
 footer a:hover { color: var(--ink); text-decoration: underline; }
 .fine { color: var(--muted); margin: 1.5rem 0 0; }
+
+/* ------------------------------------------------------------------ motion */
+
+html { scroll-behavior: smooth; }
+html, body { overflow-x: clip; }
+
+/* The hero sits on the same paper the share card uses: a frame of chalk
+   scribbles with a clear middle, multiplied into the page's own paper. */
+.hero { position: relative; }
+.hero::before {
+  content: ''; position: absolute; inset: -2.5rem -4rem;
+  background: url('media/scribbles.jpg') center / cover no-repeat;
+  mix-blend-mode: multiply; opacity: .5; pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 72% 70% at 50% 45%, #000 45%, transparent 75%);
+  mask-image: radial-gradient(ellipse 72% 70% at 50% 45%, #000 45%, transparent 75%);
+}
+.hero > * { position: relative; }
+@media (prefers-color-scheme: dark) {
+  .hero::before { opacity: .12; filter: invert(1) hue-rotate(180deg); mix-blend-mode: screen; }
+}
+:root[data-theme="dark"] .hero::before { opacity: .12; filter: invert(1) hue-rotate(180deg); mix-blend-mode: screen; }
+
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+.phone { animation: bob 7s ease-in-out infinite; }
+
+/* Everything below the fold rises in with the card shadow it lands on. */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s ease, transform .7s cubic-bezier(.16, 1, .3, 1); }
+.reveal.in { opacity: 1; transform: none; }
+
+h2.u { display: inline-block; position: relative; }
+h2.u::after {
+  content: ''; position: absolute; left: 0; bottom: -.14em; height: .13em; width: 0;
+  border-radius: 99px; background: var(--teal);
+  transition: width .8s cubic-bezier(.16, 1, .3, 1) .3s;
+}
+h2.u.in::after { width: 100%; }
+
+/* The worked card flips the way the app's cards do. */
+.flip { perspective: 1200px; }
+.flip-inner { position: relative; transform-style: preserve-3d; transition: transform .65s cubic-bezier(.4, 0, .2, 1); }
+.flip.showq .flip-inner { transform: rotateY(180deg); }
+.face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.face.qside {
+  position: absolute; inset: 0; transform: rotateY(180deg);
+  display: grid; place-items: center; text-align: center;
+}
+.qside .q { font-size: 2.6rem; margin: 0; }
+.qside .hint { color: var(--muted); font-size: .95rem; margin: .8rem 0 0; }
+
+/* topics as a slow shelf */
+.marquee { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.marquee .lane { display: flex; width: max-content; animation: shelf 30s linear infinite; }
+.marquee .half { display: flex; gap: .5rem; padding-right: .5rem; }
+.marquee:hover .lane { animation-play-state: paused; }
+@keyframes shelf { to { transform: translateX(-50%); } }
+.marquee .chip { white-space: nowrap; }
+
+/* the letterpress band */
+.press {
+  display: block; width: 100%; height: auto; margin: 0 0 3.5rem;
+  border: 2px solid var(--ink); border-radius: var(--radius); box-shadow: var(--pop);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .phone { animation: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  h2.u::after { width: 100%; transition: none; }
+  .marquee { -webkit-mask-image: none; mask-image: none; }
+  .marquee .lane { animation: none; flex-wrap: wrap; width: auto; }
+  .marquee .half { flex-wrap: wrap; }
+  .flip-inner { transition: none; }
+}
+/* the people */
+.people { display: grid; grid-template-columns: 1fr 1fr; gap: 1.3rem; }
+@media (max-width: 46rem) { .people { grid-template-columns: 1fr; } }
+.scene { margin: 0; }
+.scene img {
+  width: 100%; height: auto; display: block;
+  border: 2px solid var(--ink); border-radius: var(--radius); box-shadow: var(--pop);
+}
+.scene figcaption { color: var(--muted); font-size: .93rem; margin: .65rem .2rem 0; }
+.rendered { color: var(--muted); font-size: .88rem; margin: 1.6rem 0 0; }
 </style>
 <script type="application/ld+json">
 {
@@ -372,15 +455,25 @@ footer a:hover { color: var(--ink); text-decoration: underline; }
   </p>
 
   <div class="trick">
-    <div class="card">
-      <p class="q">48 × 25</p>
-      <p class="a">1,200</p>
-      <span class="tag">Quarter of a hundred</span>
-      <ol class="steps">
-        <li>25 is 100 ÷ 4, so multiply by 100 and take a quarter.</li>
-        <li>48 × 100 = 4,800.</li>
-        <li>4,800 ÷ 4 = 1,200.</li>
-      </ol>
+    <div class="flip" id="flip">
+      <div class="flip-inner">
+        <div class="card face" id="aside">
+          <p class="q" id="fq">48 × 25</p>
+          <p class="a" id="fa">1,200</p>
+          <span class="tag" id="ftag">Quarter of a hundred</span>
+          <ol class="steps" id="fsteps">
+            <li>25 is 100 ÷ 4, so multiply by 100 and take a quarter.</li>
+            <li>48 × 100 = 4,800.</li>
+            <li>4,800 ÷ 4 = 1,200.</li>
+          </ol>
+        </div>
+        <div class="card face qside" aria-hidden="true">
+          <div>
+            <p class="q" id="qq">35²</p>
+            <p class="hint">Hold it in your head&hellip;</p>
+          </div>
+        </div>
+      </div>
     </div>
     <div>
       <p style="margin-top:0">
@@ -410,7 +503,7 @@ footer a:hover { color: var(--ink); text-decoration: underline; }
 
   <div class="grid">
     <div class="tile">
-      <p class="num">58</p>
+      <p class="num"><span id="n58">58</span></p>
       <h3>Problem types</h3>
       <p>Across ten topics, generated fresh. Scroll back and the cards are where you left them; tomorrow brings a new set.</p>
     </div>
@@ -448,6 +541,35 @@ footer a:hover { color: var(--ink); text-decoration: underline; }
   </div>
 </section>
 
+<!-- ---------------------------------------------------------------- people -->
+
+<section>
+  <h2>For whoever picks it up</h2>
+  <p class="section-lede">
+    The same feed reads differently in different hands. A card takes half a
+    minute, so it fits wherever half a minute happens to be.
+  </p>
+  <div class="people">
+    <figure class="scene">
+      <img src="media/scene-family.jpg" alt="A family of four laughing around a kitchen table while a kid holds a phone up in triumph." loading="lazy" width="1696" height="1131">
+      <figcaption>Match night in the kitchen. A group lives behind a six character code, so the youngest can be the one who starts it.</figcaption>
+    </figure>
+    <figure class="scene">
+      <img src="media/scene-commute.jpg" alt="A commuter smiling at her phone on a subway platform as a train passes behind her." loading="lazy" width="1696" height="1131">
+      <figcaption>The feed works underground. Every card is built on the phone, so a tunnel does not interrupt it.</figcaption>
+    </figure>
+    <figure class="scene">
+      <img src="media/scene-friends.jpg" alt="Three friends on a sofa at night, phones in hand, one laughing with his head thrown back." loading="lazy" width="1696" height="1131">
+      <figcaption>Ten questions, served to everyone at once, with the table moving while you watch. Somebody always shouts.</figcaption>
+    </figure>
+    <figure class="scene">
+      <img src="media/scene-grandpa.jpg" alt="An older man in a cardigan and reading glasses smiling at a phone in an armchair by a lamp." loading="lazy" width="1696" height="1131">
+      <figcaption>Ten at night, one more card. No account to make, nothing to set up, nothing asked of you at all.</figcaption>
+    </figure>
+  </div>
+  <p class="rendered">These scenes are rendered, not photographed. The screenshots above are the real thing.</p>
+</section>
+
 <!-- ---------------------------------------------------------------- groups -->
 
 <section id="groups">
@@ -471,23 +593,18 @@ footer a:hover { color: var(--ink); text-decoration: underline; }
 <section>
   <h2>Ten topics</h2>
   <p class="section-lede">Follow all ten, or narrow it to the one you want to get good at.</p>
-  <div class="chips">
-    <span class="chip">Multiplying</span>
-    <span class="chip">Squares</span>
-    <span class="chip">Percents</span>
-    <span class="chip">Fractions</span>
-    <span class="chip">Sequences</span>
-    <span class="chip">Algebra</span>
-    <span class="chip">Probability</span>
-    <span class="chip">Estimation</span>
-    <span class="chip">Word problems</span>
-    <span class="chip">Quant</span>
+  <div class="marquee">
+    <div class="lane">
+      <span class="half"><span class="chip">Multiplying</span><span class="chip">Squares</span><span class="chip">Percents</span><span class="chip">Fractions</span><span class="chip">Sequences</span><span class="chip">Algebra</span><span class="chip">Probability</span><span class="chip">Estimation</span><span class="chip">Word problems</span><span class="chip">Quant</span></span>
+      <span class="half" aria-hidden="true"><span class="chip">Multiplying</span><span class="chip">Squares</span><span class="chip">Percents</span><span class="chip">Fractions</span><span class="chip">Sequences</span><span class="chip">Algebra</span><span class="chip">Probability</span><span class="chip">Estimation</span><span class="chip">Word problems</span><span class="chip">Quant</span></span>
+    </div>
   </div>
 </section>
 
 <!-- --------------------------------------------------------------- privacy -->
 
 <section>
+  <img class="press" src="media/pressed.jpg" alt="Oversized serif numerals pressed into cream paper, one in the app's teal and a small coral dot." loading="lazy" width="1696" height="960">
   <p class="plain">
     No adverts. No analytics.<br>No tracking. No account required.
   </p>
@@ -512,5 +629,91 @@ footer a:hover { color: var(--ink); text-decoration: underline; }
   </div>
 </footer>
 
+
+<script>
+(() => {
+  const rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Rises. Added here, not in the markup, so a browser without the script
+     simply shows the page. */
+  if (!rm && 'IntersectionObserver' in window) {
+    const targets = document.querySelectorAll(
+      'section h2, .section-lede, .trick > *, .tile, .rail img, .scene, .league, .marquee, .press, .plain');
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+        if (e.target.id === 'countTile') count();
+      }
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    let i = 0;
+    for (const t of targets) {
+      t.classList.add('reveal');
+      if (t.matches('.tile, .rail img')) t.style.transitionDelay = ((i++ % 4) * 90) + 'ms';
+      io.observe(t);
+    }
+    document.querySelectorAll('section h2').forEach((h) => h.classList.add('u'));
+    const numTile = document.getElementById('n58');
+    if (numTile) numTile.closest('.tile').id = 'countTile';
+  }
+
+  /* The 58 counts itself up when its tile arrives. */
+  function count() {
+    const el = document.getElementById('n58');
+    if (!el) return;
+    const start = performance.now();
+    const tick = (now) => {
+      const p = Math.min((now - start) / 900, 1);
+      el.textContent = Math.round(58 * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  /* The worked card turns over on its own, through three real shortcuts.
+     Without the script, or with reduced motion, it is the still card. */
+  const tricks = [
+    { q: '48 \u00d7 25', a: '1,200', tag: 'Quarter of a hundred', steps: [
+      '25 is 100 \u00f7 4, so multiply by 100 and take a quarter.',
+      '48 \u00d7 100 = 4,800.',
+      '4,800 \u00f7 4 = 1,200.' ] },
+    { q: '35\u00b2', a: '1,225', tag: 'Ends in 25', steps: [
+      'A number ending in 5 squares to something ending in 25.',
+      'The tens digit is 3. Multiply it by one more: 3 \u00d7 4 = 12.',
+      'Put them together: 1,225.' ] },
+    { q: '18% of 50', a: '9', tag: 'Swap the percent', steps: [
+      '18% of 50 is the same as 50% of 18.',
+      '50% of anything is half of it.',
+      'Half of 18 is 9.' ] },
+  ];
+  const flip = document.getElementById('flip');
+  if (flip && !rm) {
+    let at = 0, paused = false;
+    const qq = document.getElementById('qq');
+    flip.addEventListener('mouseenter', () => { paused = true; });
+    flip.addEventListener('mouseleave', () => { paused = false; });
+    const show = (t) => {
+      document.getElementById('fq').textContent = t.q;
+      document.getElementById('fa').textContent = t.a;
+      document.getElementById('ftag').textContent = t.tag;
+      const ol = document.getElementById('fsteps');
+      ol.textContent = '';
+      for (const step of t.steps) {
+        const li = document.createElement('li');
+        li.textContent = step;
+        ol.appendChild(li);
+      }
+    };
+    setInterval(() => {
+      if (paused || document.hidden) return;
+      at = (at + 1) % tricks.length;
+      qq.textContent = tricks[at].q;
+      flip.classList.add('showq');
+      setTimeout(() => { show(tricks[at]); flip.classList.remove('showq'); }, 2400);
+    }, 8000);
+  }
+})();
+</script>
 </body>
 </html>
