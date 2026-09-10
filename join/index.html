@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Join a group on Numeos</title>
+<meta name="description" content="Someone invited you to their Numeos league. Take the code with you into the app.">
+<meta name="robots" content="noindex">
+<!-- On a phone with the app installed, iOS opens the app from this link before
+     the page ever renders. Everything below is what happens when it is not. -->
+<meta name="apple-itunes-app" content="app-id=6796515552">
+<style>
+:root {
+  --paper: #efebe1;
+  --paper-deep: #e6e1d4;
+  --ink: #16150f;
+  --teal: #96bfbe;
+  --muted: #65604f;
+  --card: #fff;
+  --rule: #d8d2c2;
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --radius: 22px;
+  --pop: 0 5px 0 0 var(--ink);
+}
+@media (prefers-color-scheme: dark) {
+  :root { --paper: #14140f; --paper-deep: #1c1b15; --ink: #f2eee3; --muted: #a49d8a; --card: #201f18; --rule: #33322a; }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+main { width: 100%; max-width: 420px; text-align: center; }
+h1 { font-family: var(--serif); font-size: 30px; margin: 0 0 6px; }
+p { color: var(--muted); line-height: 1.5; margin: 0 0 18px; }
+.code {
+  display: block;
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--pop);
+  padding: 22px 16px;
+  margin: 0 0 22px;
+  font-family: var(--serif);
+  font-size: 38px;
+  letter-spacing: 0.18em;
+  text-indent: 0.18em;
+}
+.get {
+  display: block;
+  width: 100%;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--pop);
+  background: var(--teal);
+  color: #16150f;
+  font: 600 17px/1 var(--sans);
+  padding: 18px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.get:active { transform: translateY(3px); box-shadow: 0 2px 0 0 var(--ink); }
+.note { font-size: 14px; margin: 0; min-height: 20px; }
+.home { color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="head">You have been invited</h1>
+  <p id="lede">Numeos runs a daily fixture against the people in your group. This is the code that gets you in.</p>
+  <strong class="code" id="code">------</strong>
+  <a class="get" id="get" href="https://apps.apple.com/app/id6796515552">Get Numeos</a>
+  <p class="note" id="note">The code is copied when you tap, so you can paste it straight into the app.</p>
+  <p class="home"><a href="https://numeos.io">numeos.io</a></p>
+</main>
+<script>
+/* The code travels in the query string because GitHub Pages serves files, not
+   routes. An install cannot carry a link across it — iOS launches the app cold
+   with no memory of where it came from — so the one thing this page can do for
+   somebody who does not have the app yet is put the six characters on their
+   clipboard on the way out. */
+(function () {
+  var code = (new URLSearchParams(location.search).get('c') || '')
+    .toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+  var el = document.getElementById('code');
+  var note = document.getElementById('note');
+  var get = document.getElementById('get');
+
+  if (code.length !== 6) {
+    document.getElementById('head').textContent = 'That invitation is incomplete';
+    document.getElementById('lede').textContent =
+      'The link is missing its code. Ask whoever sent it for the six characters, or for the link again.';
+    el.hidden = true;
+    note.textContent = '';
+    return;
+  }
+
+  el.textContent = code;
+  document.title = 'Join ' + code + ' on Numeos';
+  /* Handing the code to the app the moment it opens, on a device that has it. */
+  get.addEventListener('click', function () {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code);
+      } else {
+        var box = document.createElement('textarea');
+        box.value = code;
+        box.setAttribute('readonly', '');
+        box.style.position = 'fixed';
+        box.style.opacity = '0';
+        document.body.appendChild(box);
+        box.select();
+        document.execCommand('copy');
+        document.body.removeChild(box);
+      }
+      note.textContent = code + ' copied. Paste it into Groups once the app is installed.';
+    } catch (e) {
+      note.textContent = 'Write down ' + code + ' before you go — you will need it in the app.';
+    }
+  });
+})();
+</script>
+</body>
+</html>
